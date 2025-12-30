@@ -7,6 +7,22 @@ A reproduction harness proves the bug exists and confirms when it's fixed. It mu
 - **Self-contained**: Runs from repo root with no manual setup
 - **Binary**: Exit 0 = fixed, Exit 1 = bug present
 
+## Immutability Rule
+
+**Once the repro script is created and confirms the bug (exits 1), do not edit it.**
+
+The repro is the source of truth. If verification fails:
+- Fix the source code, not the test
+- The repro defines what "fixed" means
+
+**When to ask the user before modifying repro:**
+- Repro doesn't actually reproduce the reported bug
+- Repro tests the wrong behavior
+- Repro has a fundamental logic error
+
+If you believe the repro is wrong, stop and ask the user:
+> "The repro script may not accurately capture the bug because [reason]. Should I modify it to [proposed change]?"
+
 ## Directory Structure
 
 ```

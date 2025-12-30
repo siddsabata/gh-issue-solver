@@ -56,6 +56,8 @@ Create two files in `.claude/gh-issue-solver/repro/`:
 - Sets up environment
 - Calls `uv run python repro.py`
 
+**IMPORTANT: Once created, do not edit the repro script.** The repro is the source of truth. If verification fails, fix the code—not the test. If the repro is fundamentally wrong, ask the user before modifying it.
+
 See [references/REPRO_GUIDE.md](references/REPRO_GUIDE.md) for templates.
 
 ### 3. Run Repro (Expect Red)
@@ -75,6 +77,11 @@ Write `.claude/gh-issue-solver/notes/assessment.md`:
 - Selected root cause with evidence
 
 ### 5. Fix
+
+**Rank solutions by:**
+1. **Least breaking** - Be gentle; avoid changes that could affect other code paths
+2. **Shortest diff** - Fewer lines changed = less risk
+3. **Strong typing** - Prefer typed solutions; add type hints if touching untyped code
 
 Apply minimal patch to source files. No refactors. Match existing style.
 

@@ -101,7 +101,27 @@ Investigation approach:
 
 ## Phase 5: Apply Fix
 
-**Guidelines:**
+### Solution Ranking Criteria
+
+When multiple fixes are possible, rank by:
+
+1. **Least breaking** (highest priority)
+   - Prefer fixes that don't touch shared code paths
+   - Avoid changes that could affect unrelated features
+   - Be gentle—surgical fixes over sweeping changes
+
+2. **Shortest diff**
+   - Fewer lines changed = lower risk of regressions
+   - Single-line fix > multi-line fix
+   - Local change > change + new helper function
+
+3. **Strong typing**
+   - Add type hints to touched code
+   - Prefer `Optional[X]` over implicit `None`
+   - Use typed containers (`list[str]` not `list`)
+
+### Guidelines
+
 - Minimal change - fix only what's broken
 - No drive-by refactors
 - No unrelated "improvements"
