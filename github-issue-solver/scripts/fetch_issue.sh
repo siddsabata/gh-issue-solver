@@ -8,7 +8,7 @@ if [ $# -lt 1 ]; then
 fi
 
 ISSUE_NUM="$1"
-WORKSPACE=".claude-github-issue-solver"
+WORKSPACE=".claude/gh-issue-solver"
 ISSUE_DIR="$WORKSPACE/issue"
 
 mkdir -p "$ISSUE_DIR"

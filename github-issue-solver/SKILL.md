@@ -1,6 +1,6 @@
 ---
 name: github-issue-solver
-description: Solve GitHub issues end-to-end using a disciplined reproduce-assess-fix-verify loop. Use when asked to "solve issue #X", "fix issue #X", "debug issue #X", or given a GitHub issue URL. Enforces deterministic reproduction, minimal fixes, and produces maintainer-ready summaries. Target repo is adk-python with Python + uv.
+description: Solve GitHub issues end-to-end using a disciplined reproduce-assess-fix-verify loop. Use when asked to "solve issue #X", "fix issue #X", "debug issue #X", or given a GitHub issue URL. Enforces deterministic reproduction, minimal fixes, and produces maintainer-ready summaries. Works with any Python + uv repository.
 ---
 
 # GitHub Issue Solver
@@ -9,10 +9,9 @@ Automate a disciplined workflow for solving GitHub issues: fetch → reproduce �
 
 ## Constraints
 
-- **Repo**: adk-python
 - **Language**: Python
 - **Package manager**: uv
-- **No commits**: All artifacts remain uncommitted in `.claude-github-issue-solver/`
+- **No commits**: All artifacts remain uncommitted in `.claude/gh-issue-solver/`
 - **No PRs**: Output is a paste-ready comment, not a PR
 
 ## Workflow
@@ -23,6 +22,14 @@ FETCH → REPRO (red) → ASSESS → FIX → VERIFY → OUTPUT
                 └────── loop ──────────┘
 ```
 
+### 0. Check for Project Guidelines
+
+Before starting, check for existing agent guideline files:
+- `claude.md`, `CLAUDE.md`
+- `agents.md`, `AGENTS.md`
+
+If found, read and follow project-specific conventions. If none exist, create `claude.md` after completing the issue with discovered project context.
+
 ### 1. Initialize & Fetch
 
 ```bash
@@ -30,7 +37,7 @@ bash <skill-path>/scripts/init_workspace.sh
 bash <skill-path>/scripts/fetch_issue.sh <issue_num>
 ```
 
-Read `.claude-github-issue-solver/issue/issue.md` and extract:
+Read `.claude/gh-issue-solver/issue/issue.md` and extract:
 - Expected vs actual behavior
 - Repro steps
 - Environment details
@@ -38,11 +45,16 @@ Read `.claude-github-issue-solver/issue/issue.md` and extract:
 
 ### 2. Create Reproduction
 
-Write `.claude-github-issue-solver/repro/repro.sh` that:
-- Runs from repo root
-- Exits non-zero on failure (bug present)
-- Exits zero on success (bug fixed)
-- Prints clear PASS/FAIL
+Create two files in `.claude/gh-issue-solver/repro/`:
+
+**repro.py** - Python reproduction logic:
+- Contains the actual test code
+- Returns 0 if bug is fixed, 1 if bug is present
+- Clear PASS/FAIL output
+
+**repro.sh** - Thin shell wrapper:
+- Sets up environment
+- Calls `uv run python repro.py`
 
 See [references/REPRO_GUIDE.md](references/REPRO_GUIDE.md) for templates.
 
@@ -56,7 +68,7 @@ Must fail initially to confirm bug exists. If it passes, revisit repro logic.
 
 ### 4. Assess
 
-Write `.claude-github-issue-solver/notes/assessment.md`:
+Write `.claude/gh-issue-solver/notes/assessment.md`:
 - Failure signature
 - Minimal trigger conditions
 - 2-4 ranked hypotheses
@@ -102,8 +114,8 @@ Produce:
 <details>
 <summary>Repro Script</summary>
 
-\`\`\`bash
-[contents of repro.sh]
+\`\`\`python
+[contents of repro.py]
 \`\`\`
 
 </details>

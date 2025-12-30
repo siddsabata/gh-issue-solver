@@ -13,7 +13,7 @@ Before declaring a fix complete:
 ### Step 1: Repro Script
 
 ```bash
-bash .claude-github-issue-solver/scripts/run_repro.sh
+bash .claude/gh-issue-solver/repro/repro.sh
 ```
 
 Expected output:
@@ -103,7 +103,7 @@ After 3 failed verification attempts:
 Record in logs:
 
 ```
-.claude-github-issue-solver/logs/verify_<timestamp>.log
+.claude/gh-issue-solver/logs/verify_<timestamp>.log
 ```
 
 Log contents:
@@ -119,7 +119,7 @@ Syntax: OK
 
 Verification is complete when:
 
-- [ ] repro.sh exits 0
+- [ ] repro.py exits 0
 - [ ] No new test failures
 - [ ] Modified files have valid syntax
 - [ ] Package still imports correctly

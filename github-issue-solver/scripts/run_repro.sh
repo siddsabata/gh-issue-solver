@@ -3,9 +3,18 @@
 set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WORKSPACE="$(dirname "$SCRIPT_DIR")"
-REPO_ROOT="$(cd "$WORKSPACE/.." && pwd)"
+SKILL_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Find repo root (go up until we find .git or pyproject.toml)
+REPO_ROOT="$(pwd)"
+while [ "$REPO_ROOT" != "/" ]; do
+    if [ -d "$REPO_ROOT/.git" ] || [ -f "$REPO_ROOT/pyproject.toml" ]; then
+        break
+    fi
+    REPO_ROOT="$(dirname "$REPO_ROOT")"
+done
+
+WORKSPACE="$REPO_ROOT/.claude/gh-issue-solver"
 REPRO_SCRIPT="$WORKSPACE/repro/repro.sh"
 LOG_DIR="$WORKSPACE/logs"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)

@@ -8,11 +8,27 @@ FETCH → REPRO (red) → ASSESS → FIX → VERIFY (green) → OUTPUT
                 └─────── loop on fail ────┘
 ```
 
+## Phase 0: Check Project Guidelines
+
+Before starting, look for existing agent guideline files:
+
+```bash
+ls -la claude.md CLAUDE.md agents.md AGENTS.md 2>/dev/null
+```
+
+If found:
+- Read the file and follow project-specific conventions
+- Note any testing, style, or workflow requirements
+
+If not found:
+- Proceed with skill defaults
+- Create `claude.md` at the end with discovered project patterns
+
 ## Phase 1: Fetch Issue
 
 ```bash
-gh issue view <num> --json title,body,comments,labels,state > .claude-github-issue-solver/issue/issue.json
-gh issue view <num> > .claude-github-issue-solver/issue/issue.md
+gh issue view <num> --json title,body,comments,labels,state > .claude/gh-issue-solver/issue/issue.json
+gh issue view <num> > .claude/gh-issue-solver/issue/issue.md
 ```
 
 Extract from the issue:
@@ -29,21 +45,21 @@ If any of these are missing or ambiguous, note them for clarification.
 See [REPRO_GUIDE.md](REPRO_GUIDE.md) for detailed guidance.
 
 **Key requirements:**
-1. Script must be self-contained and runnable from repo root
+1. Two files: `repro.py` (logic) + `repro.sh` (wrapper)
 2. Must exit non-zero on failure (bug present), zero on success (bug fixed)
 3. Must print clear PASS/FAIL status
 4. Must be deterministic (no flaky behavior)
 
 Create the repro harness:
 ```bash
-mkdir -p .claude-github-issue-solver/repro
-# Write repro.sh based on issue analysis
+mkdir -p .claude/gh-issue-solver/repro
+# Write repro.py and repro.sh based on issue analysis
 ```
 
 ## Phase 3: Run Repro (Expect Red)
 
 ```bash
-bash .claude-github-issue-solver/scripts/run_repro.sh
+bash .claude/gh-issue-solver/repro/repro.sh
 ```
 
 Expected: Script fails (exit 1) confirming the bug exists.
@@ -59,7 +75,7 @@ If repro is flaky:
 
 ## Phase 4: Assess / Diagnose
 
-Write assessment to `.claude-github-issue-solver/notes/assessment.md`:
+Write assessment to `.claude/gh-issue-solver/notes/assessment.md`:
 
 ```markdown
 ## Failure Signature
@@ -100,7 +116,7 @@ See [VERIFY_GUIDE.md](VERIFY_GUIDE.md) for detailed guidance.
 
 ```bash
 # Run repro again - should pass now
-bash .claude-github-issue-solver/scripts/run_repro.sh
+bash .claude/gh-issue-solver/repro/repro.sh
 
 # Optional: run test suite if pytest detected
 uv run pytest -q
@@ -117,7 +133,7 @@ uv run pytest -q
 
 Generate final output with:
 
-1. **Repro command + result**: `bash .claude-github-issue-solver/repro/repro.sh` → PASS
+1. **Repro command + result**: `bash .claude/gh-issue-solver/repro/repro.sh` → PASS
 2. **Root cause**: Brief explanation of what was wrong
 3. **Changes made**: List of files and what was changed
 4. **Verification**: Commands run and results
@@ -138,10 +154,14 @@ Generate a paste-ready comment:
 - Repro script: PASS
 - Test suite: [PASS/SKIP/N/A]
 
-**Repro Script:**
-\`\`\`bash
-[contents of repro.sh for maintainers to verify]
+<details>
+<summary>Repro Script (repro.py)</summary>
+
+\`\`\`python
+[contents of repro.py for maintainers to verify]
 \`\`\`
+
+</details>
 ```
 
 ## Loop Discipline
@@ -158,12 +178,13 @@ The fix-verify loop is the core value of this workflow:
 Before completion, verify all artifacts exist:
 
 ```
-.claude-github-issue-solver/
+.claude/gh-issue-solver/
 ├── issue/
 │   ├── issue.md          ✓ Human-readable snapshot
 │   └── issue.json        ✓ Machine-readable snapshot
 ├── repro/
-│   ├── repro.sh          ✓ Reproduction script
+│   ├── repro.py          ✓ Python reproduction logic
+│   ├── repro.sh          ✓ Shell wrapper
 │   └── README.md         ✓ How to run repro
 ├── logs/
 │   └── *.log             ✓ Execution logs

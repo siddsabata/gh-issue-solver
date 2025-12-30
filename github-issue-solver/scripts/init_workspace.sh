@@ -2,7 +2,7 @@
 # Initialize the workspace directory structure for issue solving
 set -euo pipefail
 
-WORKSPACE=".claude-github-issue-solver"
+WORKSPACE=".claude/gh-issue-solver"
 
 echo "Initializing workspace: $WORKSPACE"
 
