@@ -27,8 +27,8 @@ If not found:
 ## Phase 1: Fetch Issue
 
 ```bash
-gh issue view <num> --json title,body,comments,labels,state > .claude/gh-issue-solver/issue/issue.json
-gh issue view <num> > .claude/gh-issue-solver/issue/issue.md
+bash <skill-path>/scripts/init_workspace.sh
+bash <skill-path>/scripts/fetch_issue.sh <num>
 ```
 
 Extract from the issue:
@@ -40,7 +40,22 @@ Extract from the issue:
 
 If any of these are missing or ambiguous, note them for clarification.
 
-## Phase 2: Create Reproduction Harness
+## Phase 2: Triage (Actionable vs User Error/Upstream/Niche)
+
+Before writing a repro, quickly assess whether the report is likely:
+- A real bug in this repo vs **user error / misunderstanding**
+- **Upstream/downstream** (belongs in a dependency or a consumer repo)
+- A **niche/low-impact** edge case vs broadly affecting users
+- Missing critical details (versions, platform, config, exact commands, full traceback)
+
+Write `.claude/gh-issue-solver/issues/<num>/notes/triage.md` with:
+- Classification: `bug` / `usage-question` / `feature-request` / `upstream` / `insufficient-info`
+- Confidence + why
+- Next action (proceed, ask for info, redirect upstream, propose close/doc update)
+
+If it’s not actionable, stop early and output a maintainer-ready comment requesting the minimum missing info or pointing to the correct repo/docs.
+
+## Phase 3: Create Reproduction Harness
 
 See [REPRO_GUIDE.md](REPRO_GUIDE.md) for detailed guidance.
 
@@ -52,14 +67,14 @@ See [REPRO_GUIDE.md](REPRO_GUIDE.md) for detailed guidance.
 
 Create the repro harness:
 ```bash
-mkdir -p .claude/gh-issue-solver/repro
+mkdir -p .claude/gh-issue-solver/issues/<num>/repro
 # Write repro.py and repro.sh based on issue analysis
 ```
 
-## Phase 3: Run Repro (Expect Red)
+## Phase 4: Run Repro (Expect Red)
 
 ```bash
-bash .claude/gh-issue-solver/repro/repro.sh
+bash <skill-path>/scripts/run_repro.sh <num>
 ```
 
 Expected: Script fails (exit 1) confirming the bug exists.
@@ -73,9 +88,9 @@ If repro is flaky:
 - Stabilize before proceeding
 - Add retries, timeouts, or seed fixes
 
-## Phase 4: Assess / Diagnose
+## Phase 5: Assess / Diagnose
 
-Write assessment to `.claude/gh-issue-solver/notes/assessment.md`:
+Write assessment to `.claude/gh-issue-solver/issues/<num>/notes/assessment.md`:
 
 ```markdown
 ## Failure Signature
@@ -136,7 +151,7 @@ See [VERIFY_GUIDE.md](VERIFY_GUIDE.md) for detailed guidance.
 
 ```bash
 # Run repro again - should pass now
-bash .claude/gh-issue-solver/repro/repro.sh
+bash <skill-path>/scripts/run_repro.sh <num>
 
 # Optional: run test suite if pytest detected
 uv run pytest -q
@@ -144,7 +159,7 @@ uv run pytest -q
 
 **If verification fails:**
 - Do NOT proceed to output
-- Loop back to Phase 4 (Assess)
+- Loop back to Phase 5 (Assess)
 - Update assessment with new findings
 - Apply revised fix
 - Verify again
@@ -153,7 +168,7 @@ uv run pytest -q
 
 Generate final output with:
 
-1. **Repro command + result**: `bash .claude/gh-issue-solver/repro/repro.sh` → PASS
+1. **Repro command + result**: `bash <skill-path>/scripts/run_repro.sh <num>` → PASS
 2. **Root cause**: Brief explanation of what was wrong
 3. **Changes made**: List of files and what was changed
 4. **Verification**: Commands run and results

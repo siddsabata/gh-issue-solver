@@ -13,7 +13,8 @@ Before declaring a fix complete:
 ### Step 1: Repro Script
 
 ```bash
-bash .claude/gh-issue-solver/repro/repro.sh
+bash <skill-path>/scripts/run_repro.sh <issue_num>
+# (or directly: bash .claude/gh-issue-solver/issues/<issue_num>/repro/repro.sh)
 ```
 
 Expected output:
@@ -103,7 +104,7 @@ After 3 failed verification attempts:
 Record in logs:
 
 ```
-.claude/gh-issue-solver/logs/verify_<timestamp>.log
+.claude/gh-issue-solver/issues/<issue_num>/logs/repro_<timestamp>.log
 ```
 
 Log contents:

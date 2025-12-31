@@ -15,8 +15,26 @@ while [ "$REPO_ROOT" != "/" ]; do
 done
 
 WORKSPACE="$REPO_ROOT/.claude/gh-issue-solver"
-REPRO_SCRIPT="$WORKSPACE/repro/repro.sh"
-LOG_DIR="$WORKSPACE/logs"
+ACTIVE_ISSUE_FILE="$WORKSPACE/ACTIVE_ISSUE"
+
+ISSUE_NUM="${1:-}"
+if [ -z "$ISSUE_NUM" ]; then
+    if [ -f "$ACTIVE_ISSUE_FILE" ]; then
+        ISSUE_NUM="$(cat "$ACTIVE_ISSUE_FILE")"
+    fi
+fi
+
+if [ -z "$ISSUE_NUM" ]; then
+    echo "ERROR: No issue number provided and no active issue found."
+    echo "Run one of:"
+    echo "  bash \"$SKILL_DIR/scripts/fetch_issue.sh\" <issue_num>"
+    echo "  bash \"$SKILL_DIR/scripts/run_repro.sh\" <issue_num>"
+    exit 2
+fi
+
+ISSUE_ROOT="$WORKSPACE/issues/$ISSUE_NUM"
+REPRO_SCRIPT="$ISSUE_ROOT/repro/repro.sh"
+LOG_DIR="$ISSUE_ROOT/logs"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 LOG_FILE="$LOG_DIR/repro_$TIMESTAMP.log"
 
@@ -31,6 +49,7 @@ fi
 
 echo "=== Running Reproduction ===" | tee "$LOG_FILE"
 echo "Timestamp: $(date)" | tee -a "$LOG_FILE"
+echo "Issue: #$ISSUE_NUM" | tee -a "$LOG_FILE"
 echo "Script: $REPRO_SCRIPT" | tee -a "$LOG_FILE"
 echo "Log: $LOG_FILE" | tee -a "$LOG_FILE"
 echo "============================" | tee -a "$LOG_FILE"

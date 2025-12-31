@@ -26,7 +26,7 @@ If you believe the repro is wrong, stop and ask the user:
 ## Directory Structure
 
 ```
-.claude/gh-issue-solver/repro/
+.claude/gh-issue-solver/issues/<issue_num>/repro/
 ├── repro.py           # Python reproduction logic
 ├── repro.sh           # Shell wrapper
 ├── README.md          # Instructions for maintainers
@@ -135,12 +135,12 @@ exit $EXIT_CODE
 
 From repo root:
 \`\`\`bash
-bash .claude/gh-issue-solver/repro/repro.sh
+bash .claude/gh-issue-solver/issues/<issue_num>/repro/repro.sh
 \`\`\`
 
 Or run Python directly:
 \`\`\`bash
-uv run python .claude/gh-issue-solver/repro/repro.py
+uv run python .claude/gh-issue-solver/issues/<issue_num>/repro/repro.py
 \`\`\`
 
 ## Expected Results

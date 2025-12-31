@@ -13,6 +13,7 @@ Automate a disciplined workflow for solving GitHub issues: fetch → reproduce �
 - **Package manager**: uv
 - **No commits**: All artifacts remain uncommitted in `.claude/gh-issue-solver/`
 - **No PRs**: Output is a paste-ready comment, not a PR
+- **Per-issue workspace**: Store artifacts under `.claude/gh-issue-solver/issues/<issue_num>/` to avoid overwrites
 
 ## Workflow
 
@@ -37,15 +38,33 @@ bash <skill-path>/scripts/init_workspace.sh
 bash <skill-path>/scripts/fetch_issue.sh <issue_num>
 ```
 
-Read `.claude/gh-issue-solver/issue/issue.md` and extract:
+Read `.claude/gh-issue-solver/issues/<issue_num>/issue/issue.md` and extract:
 - Expected vs actual behavior
 - Repro steps
 - Environment details
 - Acceptance condition
 
-### 2. Create Reproduction
+### 2. Triage (Is This a Real/Actionable Issue?)
 
-Create two files in `.claude/gh-issue-solver/repro/`:
+Before investing in a repro/fix, sanity-check whether the report is likely:
+- A real bug in this repo vs **user error / misuse**
+- **Upstream/downstream** (belongs in a dependency or consumer repo)
+- **Niche/low-impact** vs broadly affecting users
+- Missing critical info (versions, platform, config, exact commands, full traceback)
+
+Write `.claude/gh-issue-solver/issues/<issue_num>/notes/triage.md` with:
+- Classification: `bug` / `usage-question` / `feature-request` / `upstream` / `insufficient-info`
+- Confidence + why (1-2 bullets)
+- Next action: proceed to repro, ask for info, or propose a maintainer reply/close rationale
+
+If it’s likely user error, upstream, or insufficient info, **stop early** and output a paste-ready GitHub comment that:
+- Explains what seems off (without blaming the reporter)
+- Requests the minimum missing details, or points to the correct repo/docs
+- States what would make this actionable (a minimal repro, exact versions, etc.)
+
+### 3. Create Reproduction
+
+Create two files in `.claude/gh-issue-solver/issues/<issue_num>/repro/`:
 
 **repro.py** - Python reproduction logic:
 - Contains the actual test code
@@ -60,23 +79,23 @@ Create two files in `.claude/gh-issue-solver/repro/`:
 
 See [references/REPRO_GUIDE.md](references/REPRO_GUIDE.md) for templates.
 
-### 3. Run Repro (Expect Red)
+### 4. Run Repro (Expect Red)
 
 ```bash
-bash <skill-path>/scripts/run_repro.sh
+bash <skill-path>/scripts/run_repro.sh <issue_num>  # issue_num optional if already fetched
 ```
 
 Must fail initially to confirm bug exists. If it passes, revisit repro logic.
 
-### 4. Assess
+### 5. Assess
 
-Write `.claude/gh-issue-solver/notes/assessment.md`:
+Write `.claude/gh-issue-solver/issues/<issue_num>/notes/assessment.md`:
 - Failure signature
 - Minimal trigger conditions
 - 2-4 ranked hypotheses
 - Selected root cause with evidence
 
-### 5. Fix
+### 6. Fix
 
 **Rank solutions by:**
 1. **Least breaking** - Be gentle; avoid changes that could affect other code paths
@@ -85,18 +104,18 @@ Write `.claude/gh-issue-solver/notes/assessment.md`:
 
 Apply minimal patch to source files. No refactors. Match existing style.
 
-### 6. Verify
+### 7. Verify
 
 ```bash
-bash <skill-path>/scripts/run_repro.sh
+bash <skill-path>/scripts/run_repro.sh <issue_num>  # issue_num optional if already fetched
 uv run pytest -q  # if pytest detected
 ```
 
-**If verification fails**: Loop back to step 4. Max 3 attempts before asking user.
+**If verification fails**: Loop back to step 5. Max 3 attempts before asking user.
 
 See [references/VERIFY_GUIDE.md](references/VERIFY_GUIDE.md) for details.
 
-### 7. Output
+### 8. Output
 
 Produce:
 1. Root cause explanation
