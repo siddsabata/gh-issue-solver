@@ -42,7 +42,15 @@ Read `.claude/gh-issue-solver/issues/<issue_num>/issue/issue.md` and extract:
 - Expected vs actual behavior
 - Repro steps
 - Environment details
+- Reporter-proposed fix/workaround (if any)
 - Acceptance condition
+
+### 1b. Suggested Fixes Are Hypotheses
+
+If the issue includes a suggested fix, workaround, or suspected cause:
+- Treat it as a **hypothesis**, not a requirement
+- Try to validate it against the repro and evidence
+- Still generate and rank other plausible hypotheses before choosing a fix
 
 ### 2. Triage (Is This a Real/Actionable Issue?)
 
@@ -92,7 +100,7 @@ Must fail initially to confirm bug exists. If it passes, revisit repro logic.
 Write `.claude/gh-issue-solver/issues/<issue_num>/notes/assessment.md`:
 - Failure signature
 - Minimal trigger conditions
-- 2-4 ranked hypotheses
+- 2-4 ranked hypotheses (include the reporter’s suggestion if present)
 - Selected root cause with evidence
 
 ### 6. Fix
