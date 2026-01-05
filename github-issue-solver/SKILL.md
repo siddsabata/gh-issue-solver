@@ -1,6 +1,6 @@
 ---
 name: github-issue-solver
-description: Solve GitHub issues end-to-end using a disciplined reproduce-assess-fix-verify loop. Use when asked to "solve issue #X", "fix issue #X", "debug issue #X", or given a GitHub issue URL. Enforces deterministic reproduction, minimal fixes, and produces maintainer-ready summaries. Works with any Python + uv repository.
+description: Solve GitHub issues end-to-end using a disciplined reproduce-assess-fix-verify loop. Use when asked to "solve issue X", "fix issue X", or given a GitHub issue URL
 ---
 
 # GitHub Issue Solver
